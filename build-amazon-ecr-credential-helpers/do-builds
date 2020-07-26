@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source ../.env
+
+./build ubuntu gitlab/gitlab-runner:v13.2.1 docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG
+./build alpine docker:19.03.12 docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG

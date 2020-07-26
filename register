@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source .env
+
+docker-compose exec gitlab-runner1 gitlab-runner register \
+  --executor docker \
+  --docker-privileged \
+  --docker-volumes "/certs/client" \
+  --docker-volumes "/cache" \
+  --docker-volumes "$HOME/.aws/credentials:/root/.aws/credentials:ro" \
+  --docker-volumes "$PWD/build-amazon-ecr-credential-helpers/docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG:/usr/local/bin/docker-credential-ecr-login:ro" \
+  --docker-volumes "$PWD/config-docker.json:/root/.docker/config.json" \
+;

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+display_usage() {
+  echo 1>&2 ""
+  echo 1>&2 "  Usage: $0 DOCKERFILE_EXT BASE_IMAGE DOCKER_CREDENTIAL_ECR_LOGIN_FILENAME"
+  echo 1>&2 ""
+  echo 1>&2 "    DOCKERFILE_EXT is either ubuntu or alpine."
+  echo 1>&2 "    BASE_IMAGE is the name of the image which will use the helper."
+  echo 1>&2 "    DOCKER_CREDENTIAL_ECR_LOGIN_FILENAME is the resulting executable."
+  echo 1>&2 ""
+}
+
+if [ $# -ne 3 ]; then
+  display_usage
+  exit 1
+fi
+
+# Print all commands being executed, and exit on failure.
+set -ex
+
+# Build the image and thus the helper program.
+docker build -t build-amazon-ecr-credential-helpers -f Dockerfile.$1 --build-arg BASE_IMAGE=$2 .
+
+# Create a container from which to copy the helper program.
+id=$(docker create build-amazon-ecr-credential-helpers)
+
+# In case the file was created as a stray empty directory due to a
+# failed docker mount, then delete it.
+if [ -d "$3" ]; then rmdir $3; fi
+
+# Copy the helper program.
+docker cp $id:/docker-credential-ecr-login $3
+
+# Delete the container.
+docker rm -v $id
+
+# Delete the container image.
+docker rmi build-amazon-ecr-credential-helpers

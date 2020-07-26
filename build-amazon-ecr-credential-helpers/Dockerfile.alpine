@@ -1,0 +1,5 @@
+ARG BASE_IMAGE=alpine:latest
+FROM $BASE_IMAGE
+RUN apk --no-cache add git go
+RUN go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
+RUN mv /root/go/bin/docker-credential-ecr-login /
