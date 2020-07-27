@@ -9,11 +9,11 @@ services:
     container_name: gitlab-server
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost:8080'
-        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        external_url 'http://gitlab-server:${GITLAB_SERVER_WEB_PORT}'
+        gitlab_rails['gitlab_shell_ssh_port'] = ${GITLAB_SERVER_SSH_PORT}
     ports:
-      - '127.0.0.1:8080:8080'
-      - '127.0.0.1:2222:2222'
+      - '127.0.0.1:${GITLAB_SERVER_WEB_PORT}:${GITLAB_SERVER_WEB_PORT}'
+      - '127.0.0.1:${GITLAB_SERVER_SSH_PORT}:${GITLAB_SERVER_SSH_PORT}'
     volumes:
       - './gitlab-server-mounts/config:/etc/gitlab'
       - './gitlab-server-mounts/logs:/var/log/gitlab'
@@ -24,9 +24,13 @@ services:
 
   gitlab-runner1:
     image: gitlab/gitlab-runner:$GITLAB_RUNNER_TAG
-    restart: always
+    # restart: always
     container_name: gitlab-runner1
     hostname: gitlab-runner1
+
+    # Although the runner is not itself privileged, we still forward the
+    # Docker socket, and the runner config allows it to create privileged
+    # containers.
     privileged: false
 
     volumes:

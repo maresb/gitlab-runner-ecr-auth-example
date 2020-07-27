@@ -1,0 +1,17 @@
+variables:
+  PRIVATE_ECR_IMAGE: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/REPOSITORY:TAG
+
+test-runner-pull:
+  image: $PRIVATE_ECR_IMAGE
+  script:
+    - echo "Hello World!"
+
+# dind service required for test-dind
+services:
+  - docker:19.03.12-dind
+
+test-dind:
+  image: docker:19.03.12
+  script:
+    - export
+    - docker pull $PRIVATE_ECR_IMAGE
