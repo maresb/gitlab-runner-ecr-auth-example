@@ -1,13 +1,24 @@
 #!/bin/bash
 
+
+# https://stackoverflow.com/a/246128/10155767 (Dave Dopson)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+
+# Make sure we are in the correct directory.
+if [ "$DIR" != "$PWD" ]; then
+  echo "Please run this script from $DIR"
+  exit 1
+fi
+
 source .env
 
 docker-compose exec gitlab-runner1 gitlab-runner register \
   --executor docker \
   --docker-privileged \
-  --docker-volumes "/certs/client" \
-  --docker-volumes "/cache" \
-  --docker-volumes "$HOME/.aws/credentials:/root/.aws/credentials:ro" \
+  --docker-volumes "$PWD/gitlab-runner1-mounts/client-certs:/certs/client" \
+  --docker-volumes "$PWD/gitlab-runner1-mounts/cache:/cache" \
+  --docker-volumes "$AWS_CREDENTIALS:/root/.aws/credentials:ro" \
   --docker-volumes "$PWD/build-amazon-ecr-credential-helpers/docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG:/usr/local/bin/docker-credential-ecr-login:ro" \
   --docker-volumes "$PWD/config-docker.json:/root/.docker/config.json" \
 ;

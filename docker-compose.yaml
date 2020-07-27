@@ -2,18 +2,58 @@ version: '3.7'
 
 services:
 
+  gitlab-server:
+    image: 'gitlab/gitlab-ce:latest'
+    # restart: always
+    hostname: 'localhost'
+    container_name: gitlab-server
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8080'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+    ports:
+      - '127.0.0.1:8080:8080'
+      - '127.0.0.1:2222:2222'
+    volumes:
+      - './gitlab-server-mounts/config:/etc/gitlab'
+      - './gitlab-server-mounts/logs:/var/log/gitlab'
+      - './gitlab-server-mounts/data:/var/opt/gitlab'
+    networks:
+      - gitlab-network
+
+
   gitlab-runner1:
     image: gitlab/gitlab-runner:$GITLAB_RUNNER_TAG
     restart: always
     container_name: gitlab-runner1
     hostname: gitlab-runner1
     privileged: false
+
     volumes:
-      - './runner1-config:/etc/gitlab-runner'
+      - './gitlab-runner1-config:/etc/gitlab-runner'
       - '/var/run/docker.sock:/var/run/docker.sock'
-#      - './dind-config.template.toml:/root/dind-config.template.toml'
-      # These credentials plus helper are used by the runner itself to use non-public images.
-      # They do not apply to dind, i.e. the ability to use non-public images from a
-      # gitlab-ci.yml script. The latter is configured in the runner's config.toml.
-      - '$HOME/.aws/credentials:/root/.aws/credentials:ro'
+      #
+      # The credentials and helper are used by the runner itself to access
+      # private images via a .gitlab-ci.yml line of the form
+      #
+      #   image: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/repo:tag
+      #
+      # They do NOT apply to dind, i.e. the ability to use non-public 
+      # images from within a gitlab-ci.yml script, namely
+      #
+      #   image: docker:19.03.12
+      #   script:
+      #     - docker pull 123456789012.dkr.ecr.eu-central-1.amazonaws.com/repo:tag
+      #
+      # The latter is configured in the runner's config.toml via the
+      # register script.
+      - '$AWS_CREDENTIALS:/root/.aws/credentials:ro'
       - './build-amazon-ecr-credential-helpers/docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG:/usr/local/bin/docker-credential-ecr-login:ro'
+
+    networks:
+      - gitlab-network
+
+
+networks:
+  gitlab-network:
+    name: gitlab-network
