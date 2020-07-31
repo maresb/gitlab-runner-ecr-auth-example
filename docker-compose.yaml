@@ -1,26 +1,8 @@
 version: '3.7'
 
+# Note: environment variables are set in .env
+
 services:
-
-  gitlab-server:
-    image: 'gitlab/gitlab-ce:latest'
-    # restart: always
-    hostname: 'localhost'
-    container_name: gitlab-server
-    environment:
-      GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab-server:${GITLAB_SERVER_WEB_PORT}'
-        gitlab_rails['gitlab_shell_ssh_port'] = ${GITLAB_SERVER_SSH_PORT}
-    ports:
-      - '127.0.0.1:${GITLAB_SERVER_WEB_PORT}:${GITLAB_SERVER_WEB_PORT}'
-      - '127.0.0.1:${GITLAB_SERVER_SSH_PORT}:${GITLAB_SERVER_SSH_PORT}'
-    volumes:
-      - './gitlab-server-mounts/config:/etc/gitlab'
-      - './gitlab-server-mounts/logs:/var/log/gitlab'
-      - './gitlab-server-mounts/data:/var/opt/gitlab'
-    networks:
-      - gitlab-network
-
 
   gitlab-runner1:
     image: gitlab/gitlab-runner:$GITLAB_RUNNER_TAG
@@ -53,11 +35,3 @@ services:
       # register script.
       - '$AWS_CREDENTIALS:/root/.aws/credentials:ro'
       - './build-amazon-ecr-credential-helpers/docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG:/usr/local/bin/docker-credential-ecr-login:ro'
-
-    networks:
-      - gitlab-network
-
-
-networks:
-  gitlab-network:
-    name: gitlab-network

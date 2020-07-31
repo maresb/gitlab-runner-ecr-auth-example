@@ -36,7 +36,4 @@ docker-compose exec gitlab-runner1 gitlab-runner register \
   \
   `# Required for the gitlab runner (not dind) to find the credentials helper.` \
   --env 'DOCKER_AUTH_CONFIG={ "credsStore": "ecr-login" }' \
-  \
-  `# https://gitlab.com/gitlab-org/gitlab-runner/-/issues/6644#note_356811900 ` \
-  --docker-network-mode gitlab-network \
 ;
