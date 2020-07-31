@@ -1,0 +1,42 @@
+#!/bin/bash
+
+
+# https://stackoverflow.com/a/246128/10155767 (Dave Dopson)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+
+# Make sure we are in the correct directory.
+if [ "$DIR" != "$PWD" ]; then
+  echo "Please run this script from $DIR"
+  exit 1
+fi
+
+source .env
+
+docker-compose exec gitlab-runner1 gitlab-runner register \
+  --executor docker \
+  \
+  `# No default image, always specify in .gitlab-ci.yml.` \
+  --docker-image scratch \
+  \
+  `# Required for dind.` \
+  --docker-privileged \
+  \
+  --docker-volumes "$PWD/gitlab-runner1-mounts/client-certs:/certs/client" \
+  --docker-volumes "$PWD/gitlab-runner1-mounts/cache:/cache" \
+  \
+  `# Required for dind (not the gitlab runner) to find the credentials helper.` \
+  --docker-volumes "$PWD/config-docker.json:/root/.docker/config.json" \
+  \
+  `# Credentials for dind.` \
+  --docker-volumes "$AWS_CREDENTIALS:/root/.aws/credentials:ro" \
+  \
+  `# Credentials helper for dind.` \
+  --docker-volumes "$PWD/build-amazon-ecr-credential-helpers/docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG:/usr/local/bin/docker-credential-ecr-login:ro" \
+  \
+  `# Required for the gitlab runner (not dind) to find the credentials helper.` \
+  --env 'DOCKER_AUTH_CONFIG={ "credsStore": "ecr-login" }' \
+  \
+  `# https://gitlab.com/gitlab-org/gitlab-runner/-/issues/6644#note_356811900 ` \
+  --docker-network-mode gitlab-network \
+;
