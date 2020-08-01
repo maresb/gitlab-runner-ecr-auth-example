@@ -61,8 +61,8 @@ Logs can then be monitored with a command such as
 ```
 docker-compose logs -f --tail=50
 ```
-Before the runner is registered, it is normal to see error messages in
-the logs about the missing `config.toml` file.
+(Before the runner is registered, it is normal to see error messages in
+the logs about the missing `config.toml` file.)
 
 After registration, your configured credentials should work automatically.
 
@@ -91,8 +91,8 @@ Logs can be monitored with a command such as
 ```
 docker-compose -f docker-compose-complete.yaml logs -f --tail=50
 ```
-Before the runner is registered, it is normal to see error messages in
-the logs about the missing `config.toml` file.
+(Before the runner is registered, it is normal to see error messages in
+the logs about the missing `config.toml` file.)
 
 It can take several minutes for the GitLab server to start.
 When ready, the server will become available on http://gitlab-server:8800.
@@ -184,8 +184,7 @@ command, namely:
 * `/root/.docker/config.json` is bind-mounted (`register`/`config.toml`).
 
 For the GitLab runner,
-* privileged containers are not allowed (`docker-compose.yaml`)
-* but `/var/run/docker.sock` is bind-mounted (`docker-compose.yaml`),
+* privileged containers are not allowed (`docker-compose.yaml`), but `/var/run/docker.sock` is bind-mounted (`docker-compose.yaml`),
 * `/root/.aws/credentials` is bind-mounted (`docker-compose.yaml`),
 * `/usr/local/bin/docker-credential-ecr-login` is bind-mounted (`docker-compose.yaml`),
 * `DOCKER_AUTH_CONFIG` is set as an environment variable (`register`/`config.toml`).
