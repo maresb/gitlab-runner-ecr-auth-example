@@ -48,14 +48,14 @@ cd ..
 From the root of the `gitlab-runner-ecr-auth-example/` directory, run
 
 ```
-docker-compose up -d  # Leave out -d to see output for debugging.
+docker-compose up -d
 ./register  # Follow the instructions from server for adding a runner.
 ```
 
-If `-d` has been omitted (or when running `docker-compose logs`), it is
-normal to see error messages before running `register` which complain
-that `config.toml` does not exist.
-
+Logs can then be monitored with a command such as
+```
+docker-compose logs -f --tail=50
+```
 After registration, your configured credentials should work automatically.
 
 ## Runner and Server configuration
@@ -75,6 +75,12 @@ Run
 ```
 docker-compose -f docker-compose-complete.yaml up -d
 ```
+Logs can be monitored with a command such as
+```
+docker-compose -f docker-compose-complete.yaml logs -f --tail=50
+```
+When ready, the server will become available on http://gitlab-server:8800.
+
 
 It is normal to see error messages after running `docker-compose up` but before
 registering the runner, complaining that `config.toml` does not exist.
