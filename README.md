@@ -73,7 +73,7 @@ is given in the `docker-compose-complete.yaml` file.
 
 Run
 ```
-docker-compose up -f docker-compose-complete.yaml -d
+docker-compose -f docker-compose-complete.yaml up -d
 ```
 
 It is normal to see error messages after running `docker-compose up` but before
