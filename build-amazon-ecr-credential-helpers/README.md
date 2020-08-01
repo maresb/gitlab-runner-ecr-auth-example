@@ -1,14 +1,25 @@
-The `docker-credentials-ecr-login` binary is used by Docker to
-automatically obtain temporary login credentials. In order to be
-able to use it with prebuilt images, we can precompiling it,
-store the binary on the host, and bind mount it to the desired
-containers.
+Here we build Amazon's `docker-credentials-ecr-login` from the
+[Amazon ECR Docker Credential Helper](https://github.com/awslabs/amazon-ecr-credential-helper)
+GitHub repository.
 
-The two images we will use are
+# The Solution
+
+As explained below, we need to compile a `docker-credentials-ecr-login`
+binary for each Docker image we want to use. This is automated in the
+`do-builds` script.
+
+
+# The Problem
+
+The `docker-credentials-ecr-login` binary is used by Docker to
+automatically obtain temporary login credentials. We need to use
+it with the Docker images
 [`gitlab/gitlab-runner`](https://hub.docker.com/r/gitlab/gitlab-runner/)
-and [`docker`](https://hub.docker.com/_/docker), where
-`gitlab/gitlab-runner` is an Ubuntu-based image, while `docker` is an
-Alpine-based image.
+and [`docker`](https://hub.docker.com/_/docker).
+
+To inject this binary into the images, we can precompile it,
+store the binary on the host, and bind mount it to the corresponding
+containers.
 
 If one tries to use a `docker-credentials-ecr-login` binary built in one
 image with the other image, one encounters a mysterious error message
@@ -24,8 +35,14 @@ or
 bash: docker-credentials-ecr-login: No such file or directory
 ```
 
-As Eisfunke explains [in this forum post](https://forum.gitlab.com/t/bin-sh-eval-line-97-mybinary-not-found/27125/3
+even when the binary is in the `$PATH` and has the correct executable
+permissions.
+
+As Eisfunke explains 
+[in this forum post](https://forum.gitlab.com/t/bin-sh-eval-line-97-mybinary-not-found/27125/3
 ), the problem is that the correct linked libraries cannot be found.
+This is perhaps not so surprising since `gitlab/gitlab-runner` is an
+Ubuntu-based image, while `docker` is an Alpine-based image.
 
 Indeed, checking the linked libraries, we see
 
@@ -54,4 +71,6 @@ Error relocating /usr/local/bin/docker-credential-ecr-login: __vfprintf_chk: sym
 Error relocating /usr/local/bin/docker-credential-ecr-login: __fprintf_chk: symbol not found
 ```
 
-The solution is to build separate binaries. To do this, simply execute the `do-builds` script.
+In order to be able to use `docker-credentials-ecr-login` with
+various images, we build a separate binary for each individual
+image.
