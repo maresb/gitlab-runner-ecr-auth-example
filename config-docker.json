@@ -1,4 +1,1 @@
-{
-	"credsStore": "ecr-login"
-}
-
+{ "credsStore": "ecr-login" }
