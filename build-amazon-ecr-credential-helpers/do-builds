@@ -1,6 +1,7 @@
 #!/bin/bash
 
+# Import the tag names as environment variables.
 source ../.env
 
-./build ubuntu gitlab/gitlab-runner:v13.2.1 docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG
-./build alpine docker:19.03.12 docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG
+./build ubuntu gitlab/gitlab-runner:$GITLAB_RUNNER_TAG docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG
+./build alpine docker:$DOCKER_IMAGE_TAG docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG
