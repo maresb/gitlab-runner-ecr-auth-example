@@ -24,7 +24,8 @@ from the `docker:19.03.12` image, and saves the resulting binary as
 # The Problem
 
 The `docker-credentials-ecr-login` binary is used by Docker to
-automatically obtain temporary login credentials. We need to use
+automatically obtain temporary login credentials based on either
+environment variables or `~/.aws/credentials`. We need to use
 it with the Docker images
 [`gitlab/gitlab-runner`](https://hub.docker.com/r/gitlab/gitlab-runner/)
 and [`docker`](https://hub.docker.com/_/docker).
