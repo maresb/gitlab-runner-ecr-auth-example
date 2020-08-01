@@ -29,7 +29,7 @@ docker-compose exec gitlab-runner1 gitlab-runner register \
   --docker-volumes "$PWD/config-docker.json:/root/.docker/config.json" \
   \
   `# Credentials for dind.` \
-  --docker-volumes "$AWS_CREDENTIALS:/root/.aws/credentials:ro" \
+  --docker-volumes "$RUNNER_CREDENTIALS_FILE:/root/.aws/credentials:ro" \
   \
   `# Credentials helper for dind.` \
   --docker-volumes "$PWD/build-amazon-ecr-credential-helpers/docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG:/usr/local/bin/docker-credential-ecr-login:ro" \
