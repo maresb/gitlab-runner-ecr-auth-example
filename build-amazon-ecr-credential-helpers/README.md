@@ -4,10 +4,22 @@ GitHub repository.
 
 # The Solution
 
-As explained below, we need to compile a `docker-credentials-ecr-login`
+As explained below, we need to build a `docker-credentials-ecr-login`
 binary for each Docker image we want to use. This is automated in the
-`do-builds` script.
+`do-builds` script. Thus it is recommended to simply run
+```
+./do-builds
+```
 
+In case you would like to build the binary for a different image,
+you can adapt the following command
+```
+./build alpine docker:19.03.12 docker-credential-ecr-login-docker_19.03.12
+```
+
+which uses the Alpine-based build script in `Dockerfile.alpine` starting
+from the `docker:19.03.12` image, and saves the resulting binary as
+`docker-credential-ecr-login-docker_19.03.12`.
 
 # The Problem
 
@@ -71,6 +83,6 @@ Error relocating /usr/local/bin/docker-credential-ecr-login: __vfprintf_chk: sym
 Error relocating /usr/local/bin/docker-credential-ecr-login: __fprintf_chk: symbol not found
 ```
 
-In order to be able to use `docker-credentials-ecr-login` with
+In order to be sure that `docker-credentials-ecr-login` works with
 various images, we build a separate binary for each individual
 image.
