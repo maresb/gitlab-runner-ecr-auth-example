@@ -51,7 +51,7 @@ services:
       #
       # The latter is configured in the runner's config.toml via the
       # register script.
-      - '$AWS_CREDENTIALS:/root/.aws/credentials:ro'
+      - '$RUNNER_CREDENTIALS_FILE:/root/.aws/credentials:ro'
       - './build-amazon-ecr-credential-helpers/docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG:/usr/local/bin/docker-credential-ecr-login:ro'
 
     networks:
