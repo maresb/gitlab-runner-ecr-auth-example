@@ -5,8 +5,10 @@ a GitLab runner to work with automatic ECR authentication. This allows
 for access to private ECR registries for
 both the Docker executor and Docker-in-Docker (DinD).
 
-These instructions assume that you are using Linux. If you are not running Linux,
-you deserve better.
+These instructions assume that you are using Linux, and that your user has
+[permissions to run `docker` without `sudo`](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+
+If you are not running Linux, you deserve better.
 
 # Quick start
 
