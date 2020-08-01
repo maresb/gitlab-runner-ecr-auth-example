@@ -10,14 +10,16 @@ you deserve better.
 
 # Quick start
 
-If we have an existing GitLab server, we can use the runner-only configuration.
+If you have an existing GitLab server, you should do the [prerequisites](#prerequisites)
+and then use the [runner-only configuration](#runner-only-configuration).
 
-If we have no existing GitLab server, we can easily run a GitLab
-server container.
-
-In both cases, we must configure the credentials and build the credential helpers.
+If you have no existing GitLab server, you can easily run a GitLab
+server container. After doing the [prerequisites](#prerequisites)
+you should skip to the [runner and server configuration](#runner-and-server-configuration).
 
 ## Prerequisites
+
+Regardless of whether or not we need to run a server, we must configure the credentials and build the credential helpers.
 
 ### Configure the credentials
 
@@ -48,10 +50,11 @@ docker-compose up -d  # Leave out -d to see output for debugging.
 ./register  # Follow the instructions from server for adding a runner.
 ```
 
-It is normal to see error messages between running `docker-compose up` and `register`
-complaining that `config.toml` does not exist.
+If `-d` has been omitted (or when running `docker-compose logs`), it is
+normal to see error messages before running `register` which complain
+that `config.toml` does not exist.
 
-Now if you properly assign your runner, it should automatically authenticate.
+After registration, your configured credentials should work automatically.
 
 ## Runner and Server configuration
 
@@ -63,8 +66,8 @@ line
 ```
 to `/etc/hosts` so that the server can be properly resolved from the host.
 
-With `docker-compose` We must reference `docker-compose-complete.yaml` since it contains the additional
-configuration for the server.
+The configuration which includes both the GitLab Runner and GitLab Server
+is given in the `docker-compose-complete.yaml` file.
 
 Run
 ```
@@ -127,4 +130,41 @@ The `docker:19.03.12-dind` service provides a Docker host which can then be
 accessed via the `docker` command from the `docker:19.03.12` image. To obtain
 credentials, one could install and use the AWS CLI. However, this requires
 installing Python as a dependency, and it clutters the CI script with a lot
-of boilerplate code.
+of boilerplate code. Thus it's more desirable when authentication happens
+transparently.
+
+## The authentication mechanism
+
+To handle authentication, we add a bind mount to the credential helper
+under `/usr/local/bin/docker-credentials-ecr-login`.
+Next we must signal to Docker that it should actually use it.
+For the GitLab runner's Docker executor, this is done
+by setting the `DOCKER_AUTH_CONFIG` environment variable to 
+`{ "credsStore": "ecr-login" }`. For DinD (using the
+`docker` command in a script), we must put the same content in
+`/root/.docker/config.json` (which we accomplish with a bind mount).
+
+Like the AWS CLI, `docker-credentials-ecr-login` will search for
+credentials either in the default profile of the
+`~/.aws/credentials` or in the following environment variables.
+```
+AWS_DEFAULT_REGION
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+```
+We take the former approach and mount a credentials file to
+`/root/.aws/credentials`.
+
+For DinD, everything is configured in `config.toml` via the `register`
+command, namely:
+* privileged containers are allowed (`register`/`config.toml`),
+* `/root/.aws/credentials` is bind-mounted (`register`/`config.toml`),
+* `/usr/local/bin/docker-credential-ecr-login` is bind-mounted (`register`/`config.toml`), and
+* `/root/.docker/config.json` is bind-mounted (`register`/`config.toml`).
+
+For the GitLab runner,
+* privileged containers are not allowed (`docker-compose.yaml`)
+* but `/var/run/docker.sock` is bind-mounted (`docker-compose.yaml`),
+* `/root/.aws/credentials` is bind-mounted (`docker-compose.yaml`),
+* `/usr/local/bin/docker-credential-ecr-login` is bind-mounted (`docker-compose.yaml`),
+* `DOCKER_AUTH_CONFIG` is set as an environment variable (`register`/`config.toml`).
