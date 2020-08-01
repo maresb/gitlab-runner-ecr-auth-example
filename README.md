@@ -12,12 +12,14 @@ If you are not running Linux, you deserve better.
 
 # Quick start
 
+In case you just want to understand how this works, skip to the section [The authentication mechanism](#the-authentication-mechanism).
+
 If you have an existing GitLab server, you should do the [prerequisites](#prerequisites)
 and then use the [runner-only configuration](#runner-only-configuration).
 
 If you have no existing GitLab server, you can easily run a GitLab
 server container. After doing the [prerequisites](#prerequisites)
-you should skip to the [runner and server configuration](#runner-and-server-configuration).
+you should skip to the [runner with server configuration](#runner-with-server-configuration).
 
 ## Prerequisites
 
@@ -45,6 +47,9 @@ cd ..
 
 ## Runner-only configuration
 
+If you also need to set up a GitLab server, then skip to the section
+[Runner with Server configuration](#runner-with-server-configuration).
+
 From the root of the `gitlab-runner-ecr-auth-example/` directory, run
 
 ```
@@ -56,9 +61,16 @@ Logs can then be monitored with a command such as
 ```
 docker-compose logs -f --tail=50
 ```
+Before the runner is registered, it is normal to see error messages in
+the logs about the missing `config.toml` file.
+
 After registration, your configured credentials should work automatically.
 
-## Runner and Server configuration
+If desired,
+[configure the restart behavior](https://docs.docker.com/compose/compose-file/#restart)
+for the runner in `docker-compose.yaml`.
+
+## Runner with Server configuration
 
 We will set up the local GitLab server with the hostname `gitlab-server`.
 In order that it is locally accessible from this address, we must add the
@@ -79,13 +91,11 @@ Logs can be monitored with a command such as
 ```
 docker-compose -f docker-compose-complete.yaml logs -f --tail=50
 ```
-When ready, the server will become available on http://gitlab-server:8800.
-
-
-It is normal to see error messages after running `docker-compose up` but before
-registering the runner, complaining that `config.toml` does not exist.
+Before the runner is registered, it is normal to see error messages in
+the logs about the missing `config.toml` file.
 
 It can take several minutes for the GitLab server to start.
+When ready, the server will become available on http://gitlab-server:8800.
 
 Once it starts, you can configure a root account and get it ready to register
 a runner.
@@ -97,6 +107,9 @@ on the same Docker network as the GitLab server.
 ```
 ./register-complete  # Follow the instructions from server for adding a runner.
 ```
+
+If desired, [configure the restart behavior](https://docs.docker.com/compose/compose-file/#restart)
+for the runner and server in `docker-compose-complete.yaml`.
 
 
 # Explanation
