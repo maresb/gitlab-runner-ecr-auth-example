@@ -162,6 +162,20 @@ Additional files and directories which are created within this repository includ
 * additional shared runner folders under `gitlab-runner1-mounts/`,
 * in the case of the server, shared folders under `gitlab-server-mounts/`.
 
+## Index of files
+
+``` text
+├ .env                                  [environment variables for docker-compose]
+├ runner-ecr-credentials                [profile template for AWS credentials]
+├ docker-compose.yaml                   [runner-only docker-compose config]
+├ register                              [runner-only runner registration script]
+├ docker-compose-complete.yaml          [runner + server docker-compose config]
+├ register-complete                     [runner + server runner registration script]
+├ config-docker.json                    [DinD config to enable credential helper]
+├ example-.gitlab-ci.yml                [Example .gitlab-ci.yml for testing authentication]
+└ build-amazon-ecr-credential-helpers   [tools to build credential helpers]
+```
+
 ## Explanation
 
 ### Two distinct authentication requirements
