@@ -1,11 +1,13 @@
 version: '3.7'
 
+# Note: environment variables are set in .env
+
 services:
 
   gitlab-server:
     image: 'gitlab/gitlab-ce:latest'
     # restart: always
-    hostname: 'localhost'
+    hostname: 'gitlab-server'
     container_name: gitlab-server
     environment:
       GITLAB_OMNIBUS_CONFIG: |
@@ -25,8 +27,6 @@ services:
   gitlab-runner1:
     image: gitlab/gitlab-runner:$GITLAB_RUNNER_TAG
     # restart: always
-    container_name: gitlab-runner1
-    hostname: gitlab-runner1
 
     # Although the runner is not itself privileged, we still forward the
     # Docker socket, and the runner config allows it to create privileged
