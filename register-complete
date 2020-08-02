@@ -11,6 +11,7 @@ if [ "$DIR" != "$PWD" ]; then
   exit 1
 fi
 
+# Read environment variables
 source .env
 
 docker-compose exec gitlab-runner1 gitlab-runner register \
@@ -21,6 +22,9 @@ docker-compose exec gitlab-runner1 gitlab-runner register \
   \
   `# Required for DinD.` \
   --docker-privileged \
+  \
+  `# IMPORTANT: The source paths of all bind-mount volumes are on the` \
+  `#            runner's host, and NOT in the gitlab-runner container.` \
   \
   --docker-volumes "$PWD/gitlab-runner1-mounts/client-certs:/certs/client" \
   --docker-volumes "$PWD/gitlab-runner1-mounts/cache:/cache" \
