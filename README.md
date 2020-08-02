@@ -2,6 +2,7 @@
 
 * GitHub: <https://github.com/maresb/gitlab-runner-ecr-auth-example>
 * GitLab: <https://gitlab.com/bmares/gitlab-runner-ecr-auth-example>
+* GitLab issue on ECR auth: <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1583>
 
 ## Introduction
 
