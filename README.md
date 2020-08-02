@@ -5,10 +5,13 @@ a GitLab runner to work with automatic ECR authentication. This allows
 for access to private ECR registries for
 both the Docker executor and Docker-in-Docker (DinD).
 
-These instructions assume that you are using Linux, and that your user has
-[permissions to run `docker` without `sudo`](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+These instructions make the following assumptions.
 
-If you are not running Linux, you deserve better.
+* You are using Linux. (If not, you deserve better.)
+* Your user has
+[permissions to run `docker` without `sudo`](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+* You are entirely responsible for all aspects of security. This setup is meant
+only for example purposes where all users are trusted. For more information, see [Security](#security).
 
 # Quick start
 
@@ -28,7 +31,7 @@ Regardless of whether or not we need to run a server, we must configure the cred
 ### Configure the credentials
 
 * Copy the file `runner-ecr-credentials` to some relatively secure location
-on the host (preferably outside of any Git repository where the credentials might
+on the host (preferably outside of any Git repository where the credentials could
 be accidentally committed and pushed). 
 
 * Edit the `.env` file and set the `RUNNER_CREDENTIALS_FILE` variable to the
@@ -49,6 +52,8 @@ cd ..
 
 If you also need to set up a GitLab server, then skip to the section
 [Runner with Server configuration](#runner-with-server-configuration).
+
+At this point you should have completed the [prerequisites](#prerequisites).
 
 From the root of the `gitlab-runner-ecr-auth-example/` directory, run
 
@@ -72,8 +77,10 @@ for the runner in `docker-compose.yaml`.
 
 ## Runner with Server configuration
 
+At this point you should have completed the [prerequisites](#prerequisites).
+
 We will set up the local GitLab server with the hostname `gitlab-server`.
-In order that it is locally accessible from this address, we must add the
+In order that it is locally accessible from this hostname, we must add the
 line
 ```
 127.0.0.1    gitlab-server
@@ -81,9 +88,11 @@ line
 to `/etc/hosts` so that the server can be properly resolved from the host.
 
 The configuration which includes both the GitLab Runner and GitLab Server
-is given in the `docker-compose-complete.yaml` file.
+is given in the `docker-compose-complete.yaml` file. Thus all `docker-compose`
+commands (including `docker-compose down`) must be adjusted accordingly by
+adding `-f docker-compose-complete.yaml` immediately after `docker-compose`.
 
-Run
+To start the runner and server, run
 ```
 docker-compose -f docker-compose-complete.yaml up -d
 ```
@@ -97,12 +106,11 @@ the logs about the missing `config.toml` file.)
 It can take several minutes for the GitLab server to start.
 When ready, the server will become available on http://gitlab-server:8800.
 
-Once it starts, you can configure a root account and get it ready to register
-a runner.
-
-The corresponding `register-complete` script is identical to `register`
-except that the runner is configured to launch containers
-on the same Docker network as the GitLab server.
+Once it starts, you can configure a root account, and create a new project.
+To register a runner, with this project, you should run the
+`register-complete` script. (The only difference with the `register`
+script is that `register-complete` configures the runner to use the same
+Docker network as the GitLab server.)
 
 ```
 ./register-complete  # Follow the instructions from server for adding a runner.
@@ -111,6 +119,30 @@ on the same Docker network as the GitLab server.
 If desired, [configure the restart behavior](https://docs.docker.com/compose/compose-file/#restart)
 for the runner and server in `docker-compose-complete.yaml`.
 
+## Cleaning up
+
+To stop the runner, use
+```
+docker-compose down
+```
+
+To stop both the server and the runner, use
+```
+docker-compose -f docker-compose-complete.yaml down
+```
+
+To reclaim disk space, most will be taken up by the GitLab Docker images. These can be
+removed by running
+```
+docker rmi gitlab/gitlab-runner:v13.2.1
+docker rmi gitlab/gitlab-ce:latest
+```
+
+Additional files and directories which are created within this repository include:
+* the binaries for the credential helper in `build-amazon-ecr-credential-helpers/`,
+* the runner configuration in `gitlab-runner1-config/config.toml`,
+* additional shared runner folders under `gitlab-runner1-mounts/`,
+* in the case of the server, shared folders under `gitlab-server-mounts/`.
 
 # Explanation
 
@@ -188,3 +220,15 @@ For the GitLab runner,
 * `/root/.aws/credentials` is bind-mounted (`docker-compose.yaml`),
 * `/usr/local/bin/docker-credential-ecr-login` is bind-mounted (`docker-compose.yaml`),
 * `DOCKER_AUTH_CONFIG` is set as an environment variable (`register`/`config.toml`).
+
+# Security
+
+This configuration allows privileged containers to be run from the runner host.
+Also, the AWS credentials are stored unencrypted on the host filesystem, and bound
+to all running containers. Therefore, access to the runner should only be granted
+to people who are both
+* trusted to with the AWS credentials and
+* trusted as administrators of the runner host.
+
+I make absolutely no claims as to the security of this configuration, and assume that
+you know what you are doing.
