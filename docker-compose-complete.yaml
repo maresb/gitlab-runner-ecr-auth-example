@@ -37,20 +37,12 @@ services:
       - './gitlab-runner1-config:/etc/gitlab-runner'
       - '/var/run/docker.sock:/var/run/docker.sock'
       #
-      # The credentials and helper are used by the runner itself to access
-      # private images via a .gitlab-ci.yml line of the form
+      # The bind mounts below apply to the runner's Docker executor, but
+      # not DinD. (The corresponding mounts for DinD are set up in the
+      # runner's "config.toml" via the "register" script.)
       #
-      #   image: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/repo:tag
-      #
-      # They do NOT apply to dind, i.e. the ability to use non-public 
-      # images from within a gitlab-ci.yml script, namely
-      #
-      #   image: docker:19.03.12
-      #   script:
-      #     - docker pull 123456789012.dkr.ecr.eu-central-1.amazonaws.com/repo:tag
-      #
-      # The latter is configured in the runner's config.toml via the
-      # register script.
+      # Note: the Docker executor also requires "DOCKER_AUTH_CONFIG" to
+      # be set in "config.toml".
       - '$RUNNER_CREDENTIALS_FILE:/root/.aws/credentials:ro'
       - './build-amazon-ecr-credential-helpers/docker-credential-ecr-login-gitlab-runner_$GITLAB_RUNNER_TAG:/usr/local/bin/docker-credential-ecr-login:ro'
 

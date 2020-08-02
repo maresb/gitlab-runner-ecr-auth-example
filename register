@@ -19,21 +19,21 @@ docker-compose exec gitlab-runner1 gitlab-runner register \
   `# No default image, always specify in .gitlab-ci.yml.` \
   --docker-image scratch \
   \
-  `# Required for dind.` \
+  `# Required for DinD.` \
   --docker-privileged \
   \
   --docker-volumes "$PWD/gitlab-runner1-mounts/client-certs:/certs/client" \
   --docker-volumes "$PWD/gitlab-runner1-mounts/cache:/cache" \
   \
-  `# Required for dind (not the gitlab runner) to find the credentials helper.` \
+  `# Required for DinD (not the runner's Docker executor) to find the credentials helper.` \
   --docker-volumes "$PWD/config-docker.json:/root/.docker/config.json" \
   \
-  `# Credentials for dind.` \
+  `# Credentials for DinD.` \
   --docker-volumes "$RUNNER_CREDENTIALS_FILE:/root/.aws/credentials:ro" \
   \
-  `# Credentials helper for dind.` \
+  `# Credentials helper for DinD.` \
   --docker-volumes "$PWD/build-amazon-ecr-credential-helpers/docker-credential-ecr-login-docker_$DOCKER_IMAGE_TAG:/usr/local/bin/docker-credential-ecr-login:ro" \
   \
-  `# Required for the gitlab runner (not dind) to find the credentials helper.` \
+  `# Required for the runner's Docker executor (not DinD) to find the credentials helper.` \
   --env 'DOCKER_AUTH_CONFIG={ "credsStore": "ecr-login" }' \
 ;
