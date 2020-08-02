@@ -1,17 +1,31 @@
+# This example .gitlab-ci.yml file tests both authentication for
+# the runner's Docker executor and authentication for running
+# "docker" in the context of a DinD CI script.
+
+# Define a private ECR registry which can be pulled via our
+# credentials.
 variables:
   PRIVATE_ECR_IMAGE: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/REPOSITORY:TAG
+
+
+# TEST 1: Have the runner's Docker executor pull a private image
+# and run a script in it.
 
 test-runner-pull:
   image: $PRIVATE_ECR_IMAGE
   script:
     - echo "Hello World!"
 
-# dind service required for test-dind
+
+# TEST 2: Pull an image via DinD.
+
+# DinD service which provides host for test-dind job
 services:
   - docker:19.03.12-dind
 
 test-dind:
+  # This image has the "docker" client command which
+  # connects to the host service defined above.
   image: docker:19.03.12
   script:
-    - export
     - docker pull $PRIVATE_ECR_IMAGE
